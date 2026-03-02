@@ -1,8 +1,8 @@
 from typing import Dict, List, Any, Optional
 from statistics import mean
-from ..models.extraction import ExtractedData
-from ..models.summary import SummaryResult
-from ..utils.logger import get_logger
+from models.extraction import ExtractedData
+from models.summary import SummaryResult
+from utils.logger import get_logger
 
 logger = get_logger(__name__)
 

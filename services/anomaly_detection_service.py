@@ -1,11 +1,11 @@
 import asyncio
 import re
 from typing import List, Dict, Any
-from ..models.extraction import ExtractedData
-from ..models.document import DocumentProcessingConfig
-from ..core.llm_client import LLMClient
-from ..services.llm_service import LLMService
-from ..utils.logger import get_logger
+from models.extraction import ExtractedData
+from models.document import DocumentProcessingConfig
+from core.llm_client import LLMClient
+from services.llm_service import LLMService
+from utils.logger import get_logger
 
 logger = get_logger(__name__)
 

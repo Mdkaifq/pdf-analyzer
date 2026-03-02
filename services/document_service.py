@@ -5,14 +5,23 @@ from typing import Optional, Dict, Any
 from pathlib import Path
 from datetime import datetime
 
-from ..models.document import Document, DocumentStatus, DocumentProcessingConfig
-from ..models.extraction import ExtractionResult, ExtractedData
-from ..models.summary import SummaryResult
-from ..core.chunker import DocumentChunker
-from ..utils.helpers import sanitize_filename, save_file_securely, validate_file_type
-from ..utils.constants import ALLOWED_FILE_EXTENSIONS
-from ..utils.logger import get_logger
-from ..core.config import settings
+from models.document import Document, DocumentStatus, DocumentProcessingConfig
+from models.extraction import ExtractionResult, ExtractedData
+from models.summary import SummaryResult
+from core.chunker import DocumentChunker
+from utils.helpers import sanitize_filename, save_file_securely, validate_file_type
+from utils.constants import ALLOWED_FILE_EXTENSIONS
+from utils.logger import get_logger
+from core.config import settings
+
+# Database imports
+from database.session import get_db_session
+from database.crud import (
+    create_document as db_create_document,
+    get_document as db_get_document,
+    update_document_status as db_update_document_status,
+    update_document_processing_info as db_update_document_processing_info
+)
 
 logger = get_logger(__name__)
 
@@ -63,6 +72,9 @@ class DocumentService:
             config=config or DocumentProcessingConfig()
         )
         
+        # Store in database
+        async with get_db_session() as db:
+            await db_create_document(db, document)
         logger.info(f"Uploaded document: {document.id} - {document.filename}")
         return document
     
@@ -93,6 +105,10 @@ class DocumentService:
             # Read the document content
             content = await self._read_document_content(document.file_path)
             
+            # Update document status in DB to processing
+            async with get_db_session() as db:
+                await db_update_document_status(db, document.id, DocumentStatus.PROCESSING)
+
             # Process based on configuration
             results = {}
             
@@ -115,6 +131,18 @@ class DocumentService:
                 document.processing_end_time - document.processing_start_time
             ).total_seconds()
             
+            # Update document processing info in DB
+            async with get_db_session() as db:
+                await db_update_document_processing_info(
+                    db,
+                    document.id,
+                    processing_start_time=document.processing_start_time,
+                    processing_end_time=document.processing_end_time,
+                    processing_duration=document.processing_duration,
+                    confidence_score=document.confidence_score,
+                    total_chunks=document.total_chunks
+                )
+
             logger.info(f"Completed processing for document: {document.id}")
             
             return {
@@ -132,6 +160,16 @@ class DocumentService:
                     document.processing_end_time - document.processing_start_time
                 ).total_seconds()
             
+            # Update document status in DB to failed
+            async with get_db_session() as db:
+                await db_update_document_status(db, document.id, DocumentStatus.FAILED)
+                await db_update_document_processing_info(
+                    db,
+                    document.id,
+                    processing_end_time=document.processing_end_time,
+                    processing_duration=document.processing_duration
+                )
+
             return {
                 "document": document,
                 "error": str(e),
@@ -189,7 +227,7 @@ class DocumentService:
         Process document for entity extraction
         """
         from .extraction_service import ExtractionService
-        from ..core.llm_client import LLMClient
+        from core.llm_client import LLMClient
         
         llm_client = LLMClient()
         extraction_service = ExtractionService(llm_client)
@@ -220,7 +258,7 @@ class DocumentService:
         Process document for summarization
         """
         from .summarization_service import SummarizationService
-        from ..core.llm_client import LLMClient
+        from core.llm_client import LLMClient
         
         llm_client = LLMClient()
         summarization_service = SummarizationService(llm_client)
@@ -264,7 +302,23 @@ class DocumentService:
         """
         Get the status of a document
         """
-        # In a real implementation, this would fetch from the database
-        # For now, we'll simulate by returning a basic document object
-        # This method would be expanded when DB integration is added
-        pass
+        async with get_db_session() as db:
+            db_document = await db_get_document(db, document_id)
+            if db_document:
+                # Convert database model to Document object
+                from models.document import Document, DocumentStatus
+                return Document(
+                    id=db_document.id,
+                    filename=db_document.filename,
+                    file_path=db_document.file_path,
+                    file_size=db_document.file_size,
+                    mime_type=db_document.mime_type,
+                    status=DocumentStatus(db_document.status),
+                    processing_start_time=db_document.processing_start_time,
+                    processing_end_time=db_document.processing_end_time,
+                    processing_duration=db_document.processing_duration,
+                    confidence_score=db_document.confidence_score,
+                    total_chunks=db_document.total_chunks,
+                    config=None  # Config may need to be loaded separately
+                )
+            return None

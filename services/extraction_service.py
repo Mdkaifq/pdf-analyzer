@@ -1,12 +1,16 @@
 import asyncio
 import json
 from typing import List, Tuple, Dict, Any
-from ..models.extraction import ExtractedData, ExtractedEntity
-from ..models.document import DocumentProcessingConfig
-from ..core.llm_client import LLMClient
-from ..services.llm_service import LLMService
-from ..core.validator import AutoRepairValidator
-from ..utils.logger import get_logger
+from models.extraction import ExtractedData, ExtractedEntity
+from models.document import DocumentProcessingConfig
+from core.llm_client import LLMClient
+from services.llm_service import LLMService
+from core.validator import AutoRepairValidator
+from utils.logger import get_logger
+
+# Database imports
+from database.session import get_db_session
+from database.crud import create_extraction_result as db_create_extraction_result
 
 logger = get_logger(__name__)
 
@@ -95,6 +99,23 @@ class ExtractionService:
                    f"{len(extracted_data.numerical_values)} numerical values, "
                    f"{len(extracted_data.risks)} risks")
         
+        return extracted_data
+
+    async def save_extraction_result(self, document_id: str, extracted_data: ExtractedData, processing_time: float, tokens_used: int) -> None:
+        """
+        Save extraction results to database
+        """
+        from models.extraction import ExtractionResult
+        extraction_result = ExtractionResult(
+            document_id=document_id,
+            extracted_data=extracted_data,
+            confidence_score=0.8,  # Placeholder - would be calculated properly in real implementation
+            processing_time=processing_time,
+            tokens_used=tokens_used
+        )
+        
+        async with get_db_session() as db:
+            await db_create_extraction_result(db, extraction_result)
         return extracted_data
     
     async def _extract_from_single_chunk(

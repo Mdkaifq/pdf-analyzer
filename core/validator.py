@@ -3,7 +3,7 @@ import re
 from typing import Any, Dict, Type, Union
 from pydantic import BaseModel, ValidationError
 from .llm_client import LLMClient
-from ..utils.logger import get_logger
+from utils.logger import get_logger
 
 logger = get_logger(__name__)
 

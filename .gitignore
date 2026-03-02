@@ -1,39 +1,29 @@
 ```
-# Python
+# Dependencies
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
+*.pyc
+*.pyo
+*.pyd
+*.py.class
+*.class
+
+# Build and distribution artifacts
 dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
+build/
 *.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
 
 # Virtual environments
 venv/
-ENV/
-env/
 .venv/
-.env/
+env/
+.ENV/
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
+# Testing
+.coverage
+coverage/
+htmlcov/
+.pytest_cache/
+.mypy_cache/
 
 # Logs
 *.log
@@ -42,25 +32,40 @@ env/
 .env
 .env.local
 .env.*
+.envrc
 
-# Coverage reports
-.coverage
-htmlcov/
-.coverage.*
-
-# Temporary files
+# Editors and IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
 *.tmp
-*.temp
 
-# Docker
-.dockerenv
-
-# Database
-*.db
-*.sqlite
-*.sqlite3
-
-# OS
+# OS generated files
 .DS_Store
 Thumbs.db
+
+# Compression and archives
+*.zip
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
 ```

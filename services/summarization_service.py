@@ -1,11 +1,15 @@
 import asyncio
 from typing import List, Tuple, Dict, Any
-from ..models.summary import SummaryResult, SummaryItem, SummaryLevel
-from ..models.document import DocumentProcessingConfig
-from ..core.llm_client import LLMClient
-from ..services.llm_service import LLMService
-from ..core.validator import AutoRepairValidator
-from ..utils.logger import get_logger
+from models.summary import SummaryResult, SummaryItem, SummaryLevel
+from models.document import DocumentProcessingConfig
+from core.llm_client import LLMClient
+from services.llm_service import LLMService
+from core.validator import AutoRepairValidator
+from utils.logger import get_logger
+
+# Database imports
+from database.session import get_db_session
+from database.crud import create_summary_result as db_create_summary_result
 
 logger = get_logger(__name__)
 
@@ -50,6 +54,9 @@ class SummarizationService:
             tokens_used=0  # Will be calculated properly
         )
         
+        # Save summary result to database
+        async with get_db_session() as db:
+            await db_create_summary_result(db, summary_result)
         logger.info("Hierarchical summarization completed")
         return summary_result
     

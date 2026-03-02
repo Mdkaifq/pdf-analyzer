@@ -2,9 +2,9 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 import asyncio
 
-from .routers import health_router, document_router
-from .core.config import settings
-from .utils.logger import get_logger
+from routers import health_router, document_router
+from core.config import settings
+from utils.logger import get_logger
 
 logger = get_logger(__name__)
 

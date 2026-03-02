@@ -4,10 +4,10 @@ import uuid
 import time
 from pathlib import Path
 
-from ..models.document import DocumentProcessingRequest, DocumentProcessingResponse, DocumentStatus
-from ..services.document_service import DocumentService
-from ..core.config import settings
-from ..utils.logger import get_logger
+from models.document import DocumentProcessingRequest, DocumentProcessingResponse, DocumentStatus
+from services.document_service import DocumentService
+from core.config import settings
+from utils.logger import get_logger
 
 router = APIRouter(prefix="/api/v1/documents", tags=["Documents"])
 
@@ -75,7 +75,7 @@ async def process_document_endpoint(
     try:
         # This would normally look up the document in the database
         # For now, we'll create a mock document for demonstration
-        from ..models.document import Document
+        from models.document import Document
         document = Document(
             id=document_id,
             filename="mock_document.pdf",
@@ -87,7 +87,7 @@ async def process_document_endpoint(
         config_dict = json.loads(config)
         if config_dict:
             # Apply configuration to document
-            from ..models.document import DocumentProcessingConfig
+            from models.document import DocumentProcessingConfig
             document.config = DocumentProcessingConfig(**config_dict)
         
         # Process document
