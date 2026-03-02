@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     api_description: str = "A production-ready backend system for document intelligence"
     
     # Database Settings
-    database_url: str = "postgresql://user:password@localhost:5432/doc_intelligence"
+    database_url: str = "sqlite+aiosqlite:///./test.db"
     redis_url: Optional[str] = "redis://localhost:6379"
     
     # LLM Settings

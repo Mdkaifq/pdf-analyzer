@@ -1,9 +1,9 @@
 import asyncio
 import json
 from typing import Dict, Any, List, Optional
-from ..core.llm_client import LLMClient
-from ..core.validator import AutoRepairValidator
-from ..utils.logger import get_logger
+from core.llm_client import LLMClient
+from core.validator import AutoRepairValidator
+from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
